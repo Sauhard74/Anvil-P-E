@@ -1604,10 +1604,83 @@ class Engine(Adapter):
           Working code, clean README, brief writeup explaining your design.
         </p>
 
+        <h2>Reading Your Results</h2>
+        <p>When you run <code>self_check.py</code>, you'll see a per-seed table and an aggregated score block. Sample output:</p>
+        <pre><span class="tag">Output · example</span><code>ANVIL · P-04 · PCAM Precision Agent — Self-Check
+==============================================================
+  total wall time            9612.4 ms
+  seeds                            2
+  stored patterns (K)             16
+  state dim (N)                   64
+  noise levels             [0.7, 0.8]
+
+  PER-SEED  ─ retrieval ─       ── anisotropy ──
+  seed      Π=I      agent  Δ     base    agent  ratio
+  ----------------------------------------------------------
+    42     0.790    0.870  +0.080   12.18    1.45   8.42×
+   101     0.760    0.840  +0.080   12.33    1.52   8.11×
+
+  AGGREGATED                       VALUE
+  ----------------------------------------------------------
+  mean Δ accuracy (over seeds)    +0.080
+  min  Δ accuracy (worst seed)    +0.080
+  mean spread reduction             8.27×
+  min  spread reduction             8.11×
+
+  SCORE (automated, max 90)         POINTS
+  ----------------------------------------------------------
+  retrieval     (max 70)            70.00
+  anisotropy    (max 20)            18.36
+  code quality  (max 10)            (manual)
+  TOTAL AUTOMATED                   88.36 / 90</code></pre>
+
+        <h3>What the numbers mean — Retrieval Δ</h3>
+        <p>Mean improvement in accuracy over the Π=I baseline, averaged across all seeds. A bigger number is always better; the score is linear up to a cap.</p>
+        <table class="eval">
+          <thead><tr><th>Mean Δ</th><th>What it signifies</th></tr></thead>
+          <tbody>
+            <tr><td class="area">Δ ≤ 0.00</td><td class="desc">At or below baseline · zero on this axis · precision is not helping retrieval</td></tr>
+            <tr><td class="area">0.00 – 0.02</td><td class="desc">Marginal · some signal but the agent isn't reading the corruption sharply</td></tr>
+            <tr><td class="area">0.02 – 0.05</td><td class="desc">Solid · principled agent · scales linearly toward full marks</td></tr>
+            <tr><td class="area">≥ 0.05</td><td class="desc">Full marks (70 pts) · reproduces the paper's class-conditional gain on synthetic data</td></tr>
+          </tbody>
+        </table>
+
+        <h3>What the numbers mean — Anisotropy Spread Reduction</h3>
+        <p>How much more uniform the convergence rates are under your precision, averaged across sampled attractors and seeds. The paper achieves ~30× with an explicitly aligned construction.</p>
+        <table class="eval">
+          <thead><tr><th>Factor</th><th>What it signifies</th></tr></thead>
+          <tbody>
+            <tr><td class="area">≤ 1.0×</td><td class="desc">Anti-aligned or identical to baseline · zero on this axis</td></tr>
+            <tr><td class="area">1.0× – 2.0×</td><td class="desc">Some isotropisation, not yet principled</td></tr>
+            <tr><td class="area">2.0× – 10.0×</td><td class="desc">Reading local geometry · log-scaled toward full marks at 10×</td></tr>
+            <tr><td class="area">≥ 10.0×</td><td class="desc">Full marks (20 pts) · approaching the paper's aligned construction</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Per-seed penalties</h3>
+        <p>The score is built to reward agents that work <em>consistently</em>, not agents that win on one seed and regress on another:</p>
+        <ul>
+          <li><span class="k">Δ &lt; 0 on any seed</span>Retrieval score is halved. An agent that beats baseline on the canonical seed but breaks on a held-out seed cannot earn full marks.</li>
+          <li><span class="k">Spread ≤ 1.0× on any seed</span>Anisotropy score is halved. Same logic applied to geometry.</li>
+        </ul>
+
+        <h3>Common combinations and what they signify</h3>
+        <table class="eval">
+          <thead><tr><th>Δ</th><th>Spread</th><th>Diagnosis</th></tr></thead>
+          <tbody>
+            <tr><td class="area">≈ 0</td><td class="desc">≈ 1×</td><td class="desc">Agent is effectively π = 1 — no modulation in effect</td></tr>
+            <tr><td class="area">≈ 0</td><td class="desc">High</td><td class="desc">Geometry shaped but retrieval not improved — likely pulling toward a wrong attractor</td></tr>
+            <tr><td class="area">Positive</td><td class="desc">≈ 1×</td><td class="desc">Heuristic helps retrieval but isn't grounded in the Hessian — fine, but capped</td></tr>
+            <tr><td class="area">Positive</td><td class="desc">High</td><td class="desc">Cracked it — precision is both useful and principled</td></tr>
+            <tr><td class="area">Negative</td><td class="desc">Any</td><td class="desc">Precision is hurting retrieval — clip or normalisation bug, or wrong sign</td></tr>
+          </tbody>
+        </table>
+
         <div class="callout">
           <div class="lbl">North Star</div>
           <blockquote>
-            The best agents won't be the most complex. They'll be the ones that actually use the per-direction control PCAM provides — and prove the theory works in practice.
+            The best agents won't be the most complex. They'll be the ones that actually use the per-direction control PCAM provides — and prove the theory works in practice across <em>any</em> seed.
           </blockquote>
         </div>
 
@@ -1662,17 +1735,36 @@ class Engine(Adapter):
             <div class="field-label">The Two Tests, Concretely</div>
             <div class="field-body">
               <p><strong>Test A — Retrieval Accuracy</strong></p>
-              <div class="kv"><div>Stored patterns (K)</div><div>200</div></div>
-              <div class="kv"><div>Test queries</div><div>250 per noise level × 4 levels = 1,000</div></div>
-              <div class="kv"><div>Noise levels</div><div>increasing corruption strength</div></div>
-              <div class="kv"><div>Metric</div><div>Δ accuracy = agent accuracy − Π=I baseline accuracy</div></div>
-              <div class="kv"><div>Runtime</div><div>≈ 5 minutes on a laptop</div></div>
+              <div class="kv"><div>Stored patterns (K)</div><div>16 (twin-paired for realistic ambiguity)</div></div>
+              <div class="kv"><div>State dimension (N)</div><div>64</div></div>
+              <div class="kv"><div>Test queries</div><div>250 per noise level × 3 levels = 750 per seed</div></div>
+              <div class="kv"><div>Noise levels</div><div>p ∈ {0.5, 0.7, 0.8} — combined mask + Gaussian</div></div>
+              <div class="kv"><div>Metric</div><div>Δ accuracy = agent − Π=I baseline, averaged across seeds</div></div>
+              <div class="kv"><div>Seeds (default)</div><div>5 seeds — agent must work for all of them</div></div>
 
               <p style="margin-top: 18px"><strong>Test B — Anisotropy Spread Check</strong></p>
-              <div class="kv"><div>Stored patterns sampled</div><div>20</div></div>
-              <div class="kv"><div>Procedure</div><div>Compute Hessian at each attractor, apply your precision, measure eigenvalue spread</div></div>
-              <div class="kv"><div>Metric</div><div>Spread reduction vs Π=I (higher = better, paper achieves ~30×)</div></div>
-              <div class="kv"><div>Runtime</div><div>≈ 2 minutes on a laptop</div></div>
+              <div class="kv"><div>Patterns sampled</div><div>16 per seed</div></div>
+              <div class="kv"><div>Procedure</div><div>Hessian at each attractor → apply your precision → measure spread of Π^½ H Π^½</div></div>
+              <div class="kv"><div>Metric</div><div>Spread reduction vs Π=I (paper achieves ~30×)</div></div>
+
+              <p style="margin-top: 18px"><strong>Total runtime</strong> — ~10 seconds quick mode (2 seeds), ~5 minutes full evaluation (5 seeds, full query count) on a laptop CPU.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">Anti-Gaming · Three Layers</div>
+            <div class="field-body">
+              <p>The bench is built so hardcoded solutions cannot pass. Same three-layer model as P-01 and P-02:</p>
+              <ul>
+                <li><span class="k">L1 · Canonical seed</span>A fixed seed (42) drives the patterns, the structured operator R, and the queries. Passing L1 alone means your agent works on one known instance — necessary but not sufficient.</li>
+                <li><span class="k">L2 · Property-based multi-seed</span>The <code>--seeds</code> flag accepts ANY integers. For each seed the harness builds a <strong>fresh pattern matrix, fresh R, fresh queries</strong> and <strong>constructs a fresh adapter instance</strong>. No state leaks between seeds. A hardcoded agent passes L1 trivially and fails L2 immediately because every numeric value it was tuned against is regenerated.</li>
+                <li><span class="k">L3 · Held-out adversarial</span>The council holds private seeds at higher K and N, plus the eventual PCA-MNIST swap. Used only at final evaluation. Not distributed.</li>
+              </ul>
+              <p>Per-seed penalty gates:</p>
+              <ul>
+                <li><span class="k">Δ &lt; 0 on any seed</span>Retrieval score is halved. Agents that beat baseline on canonical and regress on a held-out seed cannot earn full marks.</li>
+                <li><span class="k">Spread ≤ 1.0× on any seed</span>Anisotropy score is halved. Same logic, applied to geometry.</li>
+              </ul>
             </div>
           </div>
 
@@ -1682,12 +1774,12 @@ class Engine(Adapter):
               <table class="eval">
                 <thead><tr><th>Check</th><th>Weight</th><th>How it scores</th></tr></thead>
                 <tbody>
-                  <tr><td class="area">Retrieval Accuracy</td><td class="desc">70%</td><td class="desc">Linear in Δ accuracy over Π=I; full marks at Δ ≥ 0.05</td></tr>
-                  <tr><td class="area">Anisotropy Check</td><td class="desc">20%</td><td class="desc">Log-scaled spread reduction; half at 5×, full at 10×</td></tr>
+                  <tr><td class="area">Retrieval Accuracy</td><td class="desc">70%</td><td class="desc">Linear in mean Δ accuracy (across seeds); full at Δ ≥ 0.05; halved if any seed regresses below baseline</td></tr>
+                  <tr><td class="area">Anisotropy Check</td><td class="desc">20%</td><td class="desc">Log-scaled mean spread reduction; full at 10×; halved if any seed shows ≤ 1× reduction</td></tr>
                   <tr><td class="area">Code Quality</td><td class="desc">10%</td><td class="desc">Manual — working code, reproducibility, README</td></tr>
                 </tbody>
               </table>
-              <p class="muted">Submissions at or below the Π=I baseline on retrieval receive 0 on that axis — you must actually use precision meaningfully.</p>
+              <p class="muted">A submission cannot earn retrieval points without beating the Π=I baseline on average across seeds — you must actually use precision meaningfully, on more than one instance.</p>
             </div>
           </div>
 
@@ -1723,9 +1815,10 @@ pip install -r requirements.txt</code></pre>
                   <pre><span class="tag">Shell</span><code>python self_check.py --adapter adapters.myteam:Engine --quick</code></pre>
                   Compare your accuracy and spread reduction against the dummy.
                 </li>
-                <li><span class="k">Step 5 · Full evaluation</span>
-                  <pre><span class="tag">Shell</span><code>python run.py --adapter adapters.myteam:Engine --out report.json</code></pre>
-                  Same harness the judges use. Aim for Δ ≥ 0.05 on retrieval and ≥ 10× on spread.
+                <li><span class="k">Step 5 · Full evaluation across many seeds</span>
+                  <pre><span class="tag">Shell</span><code>python run.py --adapter adapters.myteam:Engine \
+  --seeds 7 13 31 97 211 503 1009 --out report.json</code></pre>
+                  Same harness the judges run. If your agent is principled, every seed should pass. Aim for mean Δ ≥ 0.05 on retrieval and ≥ 10× on spread, with no per-seed regressions.
                 </li>
               </ol>
             </div>
