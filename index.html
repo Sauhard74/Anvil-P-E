@@ -612,7 +612,7 @@
     <button class="tab" role="tab" aria-controls="ps-3" aria-selected="false" data-idx="3">
       <span class="idx">P · 03 — Sponsored · Omium</span>
       <span class="meta">Finalized</span>
-      <span class="name">Multi-Agent Autonomy with Verified Traces</span>
+      <span class="name">Autonomous Multi-Agent Pipelines</span>
     </button>
     <button class="tab" role="tab" aria-controls="ps-4" aria-selected="false" data-idx="4">
       <span class="idx">P · 04 — Sponsored · MetaCognition</span>
@@ -1291,7 +1291,7 @@ class Engine(Adapter):
         </div>
 
         <div class="lbl">Observability</div>
-        <div class="val mono">Omium SDK · required</div>
+        <div class="val mono">Omium SDK · optional add-on</div>
 
         <div class="lbl">Evaluation</div>
         <div class="judging">
@@ -1299,22 +1299,23 @@ class Engine(Adapter):
           <div class="row"><span>Live demo reliability</span><span>★</span></div>
           <div class="row"><span>Workflow complexity</span><span>★</span></div>
           <div class="row"><span>Autonomous execution</span><span>★</span></div>
-          <div class="row"><span>Verified traces</span><span>★</span></div>
+          <div class="row"><span>Verified traces · bonus</span><span>+</span></div>
         </div>
 
         <div class="marginalia">
-          // The product is yours. The trace<br>
-          // is the proof. Omium's SDK is the<br>
-          // substrate every step runs through —<br>
-          // visible, inspectable, verifiable.
+          // The product is yours. Build<br>
+          // something that ships real work.<br>
+          // Omium's SDK is available as an<br>
+          // optional tracing add-on —<br>
+          // bonus credit, not a gate.
         </div>
       </aside>
 
       <article>
         <div class="eyebrow">Problem · 03 / 04 — Sponsored Track</div>
-        <h1 class="title">Multi-agent autonomy that <span class="amp">ships</span> work — traceably.</h1>
+        <h1 class="title">Multi-agent autonomy that <span class="amp">ships</span> real work, end-to-end.</h1>
         <p class="lede">
-          Build a real-world multi-agent autonomous pipeline that solves a meaningful real-world problem <em>end-to-end</em>. Autonomous. Long-running. Tool-using. Webhook-driven. The trace is the proof — Omium's SDK is the observability substrate.
+          Build a real-world multi-agent autonomous pipeline that solves a meaningful real-world problem <em>end-to-end</em>. Autonomous. Long-running. Tool-using. Webhook-driven. Deep reasoning, real tool calls, real side-effects.
         </p>
 
         <h2>Brief</h2>
@@ -1322,7 +1323,7 @@ class Engine(Adapter):
           Build a real-world multi-agent autonomous pipeline that solves a meaningful real-world problem end-to-end. The system should work autonomously, handle long-running tasks, support deep reasoning, tool calling, web search, webhooks, and asynchronous task orchestration.
         </p>
         <p>
-          A key requirement is integrating the <strong>Omium SDK</strong> as the tracing and observability layer. Every meaningful action — agent step, tool call, webhook fire, async dispatch — must produce a verifiable trace on the Omium dashboard.
+          <strong>Omium's SDK is available as an optional tracing and observability layer.</strong> Teams that instrument their workflow through Omium can submit verified traces alongside the product — the dashboard becomes the verifiable record of what the system actually did. The tracing path earns bonus credit on the evaluation; it is not a gate on the core problem.
         </p>
 
         <h2>Required Capabilities</h2>
@@ -1335,28 +1336,33 @@ class Engine(Adapter):
           <li><span class="k">Web Search</span>The system can pull live web information when the task requires it.</li>
           <li><span class="k">Webhooks</span>External event ingress — the workflow reacts to the world, not only to user prompts.</li>
           <li><span class="k">Async Orchestration</span>Tasks fan out, complete on their own timeline, return to the planner.</li>
-          <li><span class="k">Omium SDK Integration</span>Tracing is not bolted on. Every workflow step is instrumented; the Omium dashboard is the source of truth for what the system actually did.</li>
+        </ul>
+
+        <h3>Optional · Bonus Track</h3>
+        <ul>
+          <li><span class="k">Omium SDK Tracing</span>Instrument the workflow through Omium's SDK so every meaningful action — agent step, tool call, webhook fire, async dispatch — produces a verifiable trace on the Omium dashboard. Earns bonus credit on the evaluation. Not required for the core submission.</li>
         </ul>
 
         <div class="callout">
           <div class="lbl">North Star</div>
           <blockquote>
-            A demo that runs. A trace that proves it ran. A product someone would actually use.
+            A demo that runs. A product someone would actually use. End-to-end work, completed without a human in the loop.
           </blockquote>
         </div>
 
         <h2>Evaluation</h2>
+        <p class="muted">Four core axes determine the score. The fifth is a bonus for teams that wire up Omium tracing.</p>
         <ol>
           <li><span class="k">01 · Usefulness</span>How polished and useful is the product? Does it solve a real problem someone would pay to have solved?</li>
           <li><span class="k">02 · Live Demo</span>Does it work reliably in the live demo? Reliability under demo conditions is a first-class signal.</li>
           <li><span class="k">03 · Workflow Quality</span>Complexity and quality of the agentic workflow — depth of reasoning, sophistication of orchestration, breadth of tool use.</li>
           <li><span class="k">04 · Autonomous Execution</span>Real autonomous task completion — not a sequence of prompted steps with a human in the loop.</li>
-          <li><span class="k">05 · Verified Traces</span>Workflow traces fully visible and verifiable on the Omium dashboard.</li>
+          <li><span class="k">05 · Verified Traces · Bonus</span>If the workflow is instrumented through Omium's SDK, the trace is fully visible and verifiable on the Omium dashboard. Awarded as additive bonus credit on top of the core score.</li>
         </ol>
 
         <h2>Submission</h2>
         <p>
-          If your workflow tracing is fully visible and verifiable through Omium, you may submit <em>both</em> the product and the traced workflow implementation. The trace is part of the artifact, not a side-effect.
+          The core submission is the product itself — source code, demo, and writeup. If you have wired up Omium tracing, you may additionally submit the traced workflow (dashboard URL or export) for bonus credit. The trace is a value-add artifact, not a gating requirement.
         </p>
 
         <section class="annex" aria-label="Spec annex">
@@ -1381,15 +1387,16 @@ class Engine(Adapter):
           </div>
 
           <div class="field">
-            <div class="field-label">Omium Integration · Floor</div>
+            <div class="field-label">Omium · Optional Bonus</div>
             <div class="field-body">
-              <p>Tracing is the primary judging signal. Every step the system claims to take must produce a corresponding trace on the Omium dashboard. The integration floor:</p>
+              <p>Omium's SDK is offered as an optional tracing and observability layer. Teams that opt in unlock the bonus evaluation axis. The bar for the bonus, if you take it:</p>
               <ul>
                 <li><span class="k">All Steps Traced</span>Every agent invocation, tool call, webhook fire, and async dispatch instrumented through the Omium SDK.</li>
                 <li><span class="k">Causal Threading</span>Traces preserve the causal chain — a parent step links to its children; a webhook-triggered subworkflow links back to its origin.</li>
                 <li><span class="k">Live Verifiable</span>Judges open the Omium dashboard during the demo and find the same workflow they just watched run.</li>
-                <li><span class="k">No Untraced Side-Effects</span>If a step happened in the product, it appears in Omium. Anything that ran outside the trace is invisible to the judges.</li>
+                <li><span class="k">Complete Coverage</span>If a step happened in the product, it appears in Omium. Untraced side-effects do not count toward the bonus.</li>
               </ul>
+              <p class="muted">Teams that skip Omium are not penalised on the core axes. The bonus is purely additive.</p>
             </div>
           </div>
 
@@ -1411,8 +1418,8 @@ class Engine(Adapter):
             <div class="field-label">Dependencies</div>
             <div class="field-body">
               <ul>
-                <li><span class="k">Required</span>The Omium SDK as the tracing layer. Sponsor-provided access details distributed at event start.</li>
                 <li><span class="k">Permitted</span>Any agent framework (custom, LangGraph, AutoGen, CrewAI, etc.), any LLM provider, any tool surface. Disclose all dependencies in the README.</li>
+                <li><span class="k">Optional</span>The Omium SDK as a tracing/observability layer for the bonus axis. Sponsor-provided access details distributed at event start to teams that opt in.</li>
                 <li><span class="k">Cost</span>All third-party usage is borne by the participating team.</li>
               </ul>
             </div>
@@ -1431,11 +1438,15 @@ class Engine(Adapter):
           <div class="field">
             <div class="field-label">Submission</div>
             <div class="field-body">
+              <p class="muted">Core artifacts — required of every team:</p>
               <ul>
                 <li><span class="k">Product</span>Git repository link with the source. README with a quickstart that produces a green demo run on a clean machine.</li>
-                <li><span class="k">Traced Workflow</span>The Omium dashboard URL (or export) showing at least one complete end-to-end run of the demo workflow.</li>
-                <li><span class="k">Demo</span>5-minute screen-recorded walkthrough of the product alongside the corresponding Omium trace.</li>
-                <li><span class="k">Writeup</span>3-page PDF: problem chosen, agent architecture, tool surface, and what the traces reveal that logs would not.</li>
+                <li><span class="k">Demo</span>5-minute screen-recorded walkthrough of the product completing a meaningful end-to-end task.</li>
+                <li><span class="k">Writeup</span>3-page PDF: problem chosen, agent architecture, tool surface, what makes the workflow autonomous in practice.</li>
+              </ul>
+              <p class="muted">Bonus artifact — only if you opt into Omium tracing:</p>
+              <ul>
+                <li><span class="k">Traced Workflow</span>The Omium dashboard URL (or export) showing at least one complete end-to-end run of the demo workflow. Unlocks the verified-traces bonus.</li>
               </ul>
             </div>
           </div>
@@ -1445,9 +1456,9 @@ class Engine(Adapter):
             <div class="field-body">
               <ul>
                 <li><span class="k">Live</span>Judges run your demo on your machine. Reliability under demo conditions is part of the score — a polished crash-handling story beats an ambitious crash.</li>
-                <li><span class="k">Trace Audit</span>Judges open the Omium dashboard and confirm the workflow they just saw matches what was traced. Mismatches lose points.</li>
-                <li><span class="k">Manual</span>Product polish, workflow complexity, and writeup quality graded by panel.</li>
-                <li><span class="k">Live</span>15-minute Q&amp;A. Expect questions on agent decomposition choices, tool design, and what specifically the traces let you debug that logs would not.</li>
+                <li><span class="k">Manual</span>Product polish, workflow complexity, autonomous-execution quality, and writeup graded by panel.</li>
+                <li><span class="k">Trace Audit · Bonus</span>For teams that submit Omium traces, judges open the dashboard and confirm the workflow matches what was traced. Coverage and causal threading determine the bonus magnitude.</li>
+                <li><span class="k">Q&amp;A</span>15-minute panel. Expect questions on agent decomposition, tool design, and how you achieved autonomy under demo conditions.</li>
               </ul>
             </div>
           </div>
