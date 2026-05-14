@@ -1501,30 +1501,24 @@ class Engine(Adapter):
         <div><span class="stamp">★ Finalized</span></div>
 
         <div class="lbl">Domain</div>
-        <div class="val">Associative Memory · Dynamical Systems · Inference-Time Control</div>
+        <div class="val">Associative Memory · Inference-Time Control</div>
 
         <div class="lbl">Difficulty</div>
-        <div class="val mono">★★★★★ — Research-Grade</div>
+        <div class="val mono">★★★★☆ — Research-Adjacent</div>
 
         <div class="lbl">Surface Tags</div>
         <div class="tags">
           <span class="tag">PCAM</span>
+          <span class="tag">Attractor</span>
           <span class="tag">Hopfield</span>
-          <span class="tag">Hessian</span>
-          <span class="tag">Anisotropy</span>
-          <span class="tag">Lipschitz</span>
           <span class="tag">Inference-Time</span>
         </div>
 
         <div class="lbl">Scoring · 100 pts</div>
         <div class="judging">
-          <div class="row"><span>Retrieval accuracy (D1)</span><span>25</span></div>
-          <div class="row"><span>Anisotropy quality (D2)</span><span>20</span></div>
-          <div class="row"><span>Lipschitz fidelity (D3)</span><span>15</span></div>
-          <div class="row"><span>Generalization (D4)</span><span>15</span></div>
-          <div class="row"><span>Theoretical grounding</span><span>15</span></div>
-          <div class="row"><span>Reproducibility</span><span>10</span></div>
-          <div class="row"><span>Bonus credits</span><span>+8</span></div>
+          <div class="row"><span>Retrieval accuracy</span><span>70</span></div>
+          <div class="row"><span>Anisotropy check</span><span>20</span></div>
+          <div class="row"><span>Code quality</span><span>10</span></div>
         </div>
 
         <div class="marginalia">
@@ -1537,251 +1531,203 @@ class Engine(Adapter):
 
       <article>
         <div class="eyebrow">Problem · 04 / 04 — Sponsored Track</div>
-        <h1 class="title">An inference-time <span class="amp">precision</span> agent for attractor-based retrieval.</h1>
+        <h1 class="title">Steer a memory system with <span class="amp">precision</span> — no retraining required.</h1>
         <p class="lede">
-          Build an agent that exploits Π(t) as an inference-time control variable. The PCAM base model stays frozen. Your agent reshapes the convergence dynamics of an energy-based attractor network — not the stored landscape — to achieve measurably superior retrieval under adversarial corruption.
+          We give you a memory system with patterns already stored. A noisy version of one of those patterns comes in. Your job is to build a small inference agent that decides — per dimension — how aggressively the system should pull toward the right answer. <em>Modern Hopfield networks have one knob for this. Our PCAM system has 64. Your agent decides them all.</em>
         </p>
 
-        <h2>Overview &amp; Research Alignment</h2>
+        <h2>The Task in Plain English</h2>
         <p>
-          Grounded in the paper <em>Precision-Controlled Dynamical Systems for Associative Memory</em> (PCAM), submitted to NeurIPS 2026. The paper introduces a continuous-time gradient-flow model where a diagonal precision operator Π(t) reshapes the convergence dynamics of an energy-based attractor network without altering the stored memory landscape.
+          Imagine you've stored 200 patterns in a system — think of them as memories. The patterns sit as <em>valleys</em> in an energy landscape. When a corrupted version of one comes in, the system rolls downhill from the noisy starting point into the nearest valley. Most of the time it lands in the right one. Sometimes — especially under heavy noise — it lands in a neighbour's valley.
         </p>
         <p>
-          <strong>The central theoretical insight:</strong> the energy function defines <em>what</em> is remembered; the precision operator controls <em>how</em> retrieval unfolds. Translate this principle into a working agent that exploits Π(t) as an inference-time control variable to achieve measurably superior retrieval under adversarial corruption.
-        </p>
-
-        <h2>Why It's Hard</h2>
-        <p>
-          Classical and Modern Hopfield networks expose at most one scalar (the inverse temperature β) for inference-time control. PCAM exposes an N-dimensional matrix-valued control that reshapes the full directional convergence structure of every attractor independently.
-        </p>
-        <p>
-          Building an agent that learns to set Π(t) adaptively — in real time, from a corrupted query, without retraining the base model — requires reasoning about dynamical systems, anisotropic convergence geometry, and retrieval robustness simultaneously. The 24-hour constraint forces principled architecture choices fast. Brute-force search over Π scores poorly; evaluation explicitly rewards agents that demonstrate understanding of the IFT-predicted Lipschitz structure (Theorem 7) and anisotropic basin deformation (Theorem F3).
+          What you control is the <strong>rolling speed along each direction</strong>. Set it well and corrupted queries land in the correct valley even when they're close to the boundary. That per-direction speed control is called <em>precision</em>, and it's a list of 64 positive numbers — one per dimension.
         </p>
 
-        <h2>Formal Problem</h2>
+        <h2>Why This Is Novel</h2>
         <p>
-          You are given a frozen PCAM base system: a continuous-time dynamical system <code>ȧ(t) = −Π(t)∇E(a(t)) + Ju(t)</code> with energy <code>E(a) = ½ aᵀRa − (η/β) log Σ exp(β xᵢᵀ a)</code>, fixed stored patterns <code>X ∈ ℝ^(N×K)</code>, and fixed hyperparameters <code>(R, η, β)</code>. The model is not retrained.
+          Classical and Modern Hopfield networks expose <em>one</em> global knob (an inverse-temperature scalar) for inference-time control. Our PCAM paper introduces <em>64 independent knobs</em> — the precision operator Π — and proves you can use them at inference time to reshape how retrieval unfolds without retraining anything.
         </p>
         <p>
-          Build an inference-time precision agent — a function <code>fθ : Ṽ → Π</code> — that receives a corrupted query <code>q̃ ∈ ℝ^N</code> and outputs a diagonal precision matrix <code>Π = diag(π₁, …, π_N)</code> with <code>π_i &gt; 0</code>, such that the PCAM dynamics initialised at <code>a(0) = q̃</code> converge to an equilibrium <code>a*</code> that correctly identifies the nearest stored pattern to the clean query.
+          <strong>Implementing and meaningfully exploiting precision is the novelty of this track.</strong> Setting all 64 values to 1 (the identity baseline) is the floor. Any agent that doesn't actually use precision in a principled way scores at the floor.
         </p>
 
-        <div class="callout">
-          <div class="lbl">Core Constraint</div>
-          <blockquote>
-            The base PCAM model is frozen. Do not modify E, X, R, η, β. Do not retrain. The agent operates entirely by choosing Π as a function of the incoming corrupted query — in a single forward pass at query time. Online tuning over Π after observing a(t) is not an agent.
-          </blockquote>
-        </div>
-
-        <h2>Why It Is Non-Trivial</h2>
+        <h2>What You Build</h2>
+        <p>One function. That's the whole agent.</p>
+        <pre><span class="tag">Python</span><code>def predict_precision(corrupted_query):
+    """
+    corrupted_query : a 64-dim vector (the noisy input)
+    returns         : 64 positive numbers — your precision weights
+    """
+    ...</code></pre>
         <p>
-          The naive baseline Π = I is already competitive. Modern Hopfield Networks achieve ~93% on MNIST at 30% mask noise. Your agent must beat this not by a larger model — but by understanding the geometry:
+          The harness handles the rest. It takes your precision values, runs the PCAM dynamics for you, observes where the system converges, and checks whether the answer matches the original stored pattern.
+        </p>
+
+        <h2>A Concrete Example</h2>
+        <p>
+          You receive a corrupted MNIST <em>"7"</em> with 40% of pixels masked. Your agent inspects the query and decides:
         </p>
         <ul>
-          <li><span class="k">Theorem F3 · Anisotropic Basin Deformation</span>The per-direction contraction rates near equilibrium a* are the eigenvalues of ΠH(a*), where H is the Hessian. Choosing Π to isotropize this spectrum reduces spread by ~30× on synthetic data, ~32× on real MNIST equilibria.</li>
-          <li><span class="k">Theorem 7 · Lipschitz Modulation</span>With non-zero external input u, equilibria shift continuously with Π at a bounded rate: ||a*(Π₁) − a*(Π₂)|| ≤ C ||Π₁ − Π₂||. Your agent must exploit this to steer the attractor toward the correct basin.</li>
-          <li><span class="k">Paper Reference</span>Precision-modulation gain ≈ 2.5% accuracy at p=0.4 mask noise for a class-conditional design. Your agent must match or exceed this and generalise to salt-and-pepper and Gaussian corruption that Π*class was not optimised for.</li>
+          <li><span class="k">High precision</span>On dimensions that look reliable — say, the diagonal stroke of the 7 that survived the masking.</li>
+          <li><span class="k">Low precision</span>On dimensions that look noisy — masked or distorted regions you don't trust.</li>
+        </ul>
+        <p>
+          The PCAM dynamics, weighted by your precision, pull the query toward the "7" attractor instead of the "1" attractor it might otherwise hit. That's the whole game.
+        </p>
+
+        <h2>How to Design Your Agent</h2>
+        <p>Open-ended. A few directions to consider:</p>
+        <ul>
+          <li><span class="k">Variance-Based</span>Estimate which dimensions look noisy from the query alone; down-weight those, up-weight the rest.</li>
+          <li><span class="k">Class-Conditional</span>Run a quick first-pass to guess the class, then set precision to match what queries of that class typically look like.</li>
+          <li><span class="k">Geometry-Aware</span>Use the local curvature of the energy landscape at the nearest attractor to pick precision values that balance convergence rates across directions.</li>
+          <li><span class="k">Neural</span>Train a small MLP that maps corrupted queries to good precision vectors — supervised on retrieval accuracy.</li>
+          <li><span class="k">Hybrid</span>Combine any of the above.</li>
         </ul>
 
-        <h2>Mandatory Constraints</h2>
-        <p class="muted">All eight required. Violations result in automatic disqualification — no partial credit.</p>
-        <ol>
-          <li><span class="k">C1 · Frozen Base</span>The PCAM energy E, pattern matrix X, and operator R are fixed. No gradient updates during or after training your agent.</li>
-          <li><span class="k">C2 · Diagonal Π</span>The precision matrix must remain diagonal with all positive entries. Dense or symmetric matrices are not permitted — they change the theoretical framework.</li>
-          <li><span class="k">C3 · Single Forward Pass</span>At inference, Π is computed from the corrupted query q̃ alone in one forward pass. No iterative Π optimisation after observing dynamics.</li>
-          <li><span class="k">C4 · Three Corruption Types</span>Evaluate on mask noise (p ∈ {0.1, 0.2, 0.3, 0.4}), salt-and-pepper (p ∈ {0.1, 0.2, 0.3, 0.4}), and Gaussian (σ ∈ {0.1, 0.2, 0.3, 0.4}). Agents tuned only to one type are penalised.</li>
-          <li><span class="k">C5 · Memory Loads</span>Results at K ∈ {50, 100, 200, 500}. Headline score is at K=200.</li>
-          <li><span class="k">C6 · Integration Budget</span>Explicit Euler with Δt = 0.01, convergence tolerance 10⁻⁶, step cap T = 3000. No custom solvers.</li>
-          <li><span class="k">C7 · Statistical Protocol</span>Mean ± SD over 10 random seeds. Final comparisons at p=0.4 require Bonferroni-corrected paired t-tests vs. Π=I baseline.</li>
-          <li><span class="k">C8 · Reproducibility</span>Release code with seeds, requirements file, and a script that reproduces your Table 1 equivalent in under 2 hours on an RTX 3090 or equivalent.</li>
-        </ol>
+        <h2>How We Check Your Work</h2>
+        <p>Two checks. Both run on a laptop in under 10 minutes per submission. That's it.</p>
 
-        <h2>The Four Core Deliverables</h2>
-        <p class="muted">All four required. Missing any one caps total score at 50%.</p>
-        <ol>
-          <li><span class="k">D1 · Precision Agent Implementation</span>
-            An agent <code>fθ</code> that maps a corrupted PCA query q̃ ∈ ℝ⁶⁴ to a diagonal precision matrix Π. Applied once before the PCAM dynamics run. Permitted designs: variance-based, class-conditional, Hessian-aligned (via Theorem F3 convex relaxation), neural MLP, or hybrid. <em>Headline metric:</em> Δprec at p=0.4 mask noise, K=200, against Π=I baseline.
-          </li>
-          <li><span class="k">D2 · Anisotropy Analysis</span>
-            Reproduce Experiment 3b on chosen equilibria; demonstrate your agent improves on Π-uniform spread reduction. Eigendecompose H(a*), construct Π_agent / Π_uniform / Π_anti-aligned, integrate perturbations along each eigenvector v_i, fit exponential decay μ̂_i, report spread μ̂_max/μ̂_min. <em>Target:</em> spread reduction &gt; 10× vs. baseline.
-          </li>
-          <li><span class="k">D3 · Lipschitz Modulation Verification</span>
-            Directly validate Theorem 7 — show ||a*(Π_agent) − a*(Π=I)|| is bounded by C_IFT, and the shift is toward the ground-truth stored pattern. Plot shift vs. ||Π_agent − I||_F across the test set; report Pearson r and R². <em>Target:</em> R² ≥ 0.6, bound never violated.
-          </li>
-          <li><span class="k">D4 · Generalization &amp; Stress Test</span>
-            Evidence that gains are principled, not overfit. Demonstrate on at least two of three stress tests (specifics distributed at event start). At minimum: show random Π provides no benefit (consistent with paper Table 5), and gains survive at least one out-of-distribution condition.
-          </li>
-        </ol>
+        <h3>Check 1 · Retrieval Accuracy (70%)</h3>
+        <p>
+          We run 1,000 corrupted queries through the PCAM dynamics using your precision weights. We measure how often the dynamics converge to the <em>correct</em> original stored pattern. Compared against the identity-precision baseline, your agent should produce a measurable accuracy gain. Submissions below the baseline score zero on this axis.
+        </p>
+
+        <h3>Check 2 · Anisotropy Improvement (20%)</h3>
+        <p>
+          For 20 stored patterns, we compute the local landscape curvature and apply your precision. We measure how <em>uniformly</em> the dynamics converge across all 64 directions — a smaller spread means a healthier landscape. The paper shows good precision designs can reduce spread by ~30×; we look for at least 5× over baseline.
+        </p>
+
+        <h3>Code Quality (10%)</h3>
+        <p>
+          Working code, clean README, brief writeup explaining your design.
+        </p>
 
         <div class="callout">
           <div class="lbl">North Star</div>
           <blockquote>
-            The best submissions will not be those that achieve the highest number. They will be those that demonstrate the deepest understanding of <em>why</em> precision modulation works — and build an agent that makes the theory executable.
+            The best agents won't be the most complex. They'll be the ones that actually use the per-direction control PCAM provides — and prove the theory works in practice.
           </blockquote>
         </div>
 
         <section class="annex" aria-label="Spec annex">
           <div class="annex-head">
-            <div class="annex-label">Annex A — Operational Contract</div>
-            <div class="annex-title">Scoring, benchmark, technical parameters, submission.</div>
-            <div class="annex-meta">Authored by MetaCognition for the PCAM track. Six scoring dimensions total 100 points. Bonus credits up to +8.</div>
+            <div class="annex-label">Annex A — How to Get Started</div>
+            <div class="annex-title">The starter kit, the agent interface, the tests, and what we expect.</div>
+            <div class="annex-meta">Everything you need lives in <code>bench-p04-pcam/</code>. Pure Python · NumPy only · runs on a laptop in under 10 minutes.</div>
           </div>
 
           <div class="field">
-            <div class="field-label">Scoring · Six Dimensions</div>
+            <div class="field-label">The Agent Interface</div>
+            <div class="field-body">
+              <p>One class with one method. Implement it in <code>adapters/myteam.py</code>:</p>
+              <pre><span class="tag">adapters/myteam.py</span><code>from adapter import Adapter
+import numpy as np
+
+class Engine(Adapter):
+    def __init__(self, stored_patterns, model_params):
+        """
+        stored_patterns : ndarray (K, 64) — the K patterns already stored
+        model_params    : dict with frozen system parameters (R, eta, beta, ...)
+        """
+        self.X = stored_patterns
+        self.N = stored_patterns.shape[1]
+        # any one-time prep here — train a model, compute statistics, etc.
+
+    def predict_precision(self, corrupted_query):
+        """
+        corrupted_query : ndarray (64,) — the noisy input
+        returns         : ndarray (64,) — 64 positive precision values
+        """
+        return np.ones(self.N)   # this is the identity baseline</code></pre>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">What the Starter Kit Provides</div>
+            <div class="field-body">
+              <ul>
+                <li><span class="k">PCAM Model</span>Frozen energy, gradient, dynamics integrator. You never modify this code — that's the constraint.</li>
+                <li><span class="k">Stored Patterns</span>K = 200 patterns ready to use. Same patterns for every team.</li>
+                <li><span class="k">Test Queries</span>Pre-generated corrupted queries with known ground truth. Deterministic per seed.</li>
+                <li><span class="k">Adapter Base Class</span>Defines the one method you implement.</li>
+                <li><span class="k">Baseline Agent</span>An identity-precision dummy so you can see the harness work end-to-end before you write anything.</li>
+                <li><span class="k">Test Runner</span>One command to evaluate your agent and get a score.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">The Two Tests, Concretely</div>
+            <div class="field-body">
+              <p><strong>Test A — Retrieval Accuracy</strong></p>
+              <div class="kv"><div>Stored patterns (K)</div><div>200</div></div>
+              <div class="kv"><div>Test queries</div><div>250 per noise level × 4 levels = 1,000</div></div>
+              <div class="kv"><div>Noise levels</div><div>increasing corruption strength</div></div>
+              <div class="kv"><div>Metric</div><div>Δ accuracy = agent accuracy − Π=I baseline accuracy</div></div>
+              <div class="kv"><div>Runtime</div><div>≈ 5 minutes on a laptop</div></div>
+
+              <p style="margin-top: 18px"><strong>Test B — Anisotropy Spread Check</strong></p>
+              <div class="kv"><div>Stored patterns sampled</div><div>20</div></div>
+              <div class="kv"><div>Procedure</div><div>Compute Hessian at each attractor, apply your precision, measure eigenvalue spread</div></div>
+              <div class="kv"><div>Metric</div><div>Spread reduction vs Π=I (higher = better, paper achieves ~30×)</div></div>
+              <div class="kv"><div>Runtime</div><div>≈ 2 minutes on a laptop</div></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">Scoring</div>
+            <div class="field-body">
+              <table class="eval">
+                <thead><tr><th>Check</th><th>Weight</th><th>How it scores</th></tr></thead>
+                <tbody>
+                  <tr><td class="area">Retrieval Accuracy</td><td class="desc">70%</td><td class="desc">Linear in Δ accuracy over Π=I; full marks at Δ ≥ 0.05</td></tr>
+                  <tr><td class="area">Anisotropy Check</td><td class="desc">20%</td><td class="desc">Log-scaled spread reduction; half at 5×, full at 10×</td></tr>
+                  <tr><td class="area">Code Quality</td><td class="desc">10%</td><td class="desc">Manual — working code, reproducibility, README</td></tr>
+                </tbody>
+              </table>
+              <p class="muted">Submissions at or below the Π=I baseline on retrieval receive 0 on that axis — you must actually use precision meaningfully.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">Submission</div>
+            <div class="field-body">
+              <ul>
+                <li><span class="k">Agent</span><code>adapters/&lt;yourteam&gt;.py</code> with your <code>Engine</code> class implementing <code>predict_precision</code>.</li>
+                <li><span class="k">README</span>1 page — your approach, setup steps, any dependencies beyond NumPy.</li>
+                <li><span class="k">Repo</span>Git link with the above plus any training scripts if you trained an offline model.</li>
+                <li><span class="k">Optional</span>A short note tying your design back to the paper (no formal proofs required).</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">Bench · Run It Yourself</div>
             <div class="field-body">
               <ol>
-                <li><span class="k">Retrieval Accuracy · 25 pts (D1)</span>Δprec at p=0.4 mask noise, K=200. Baseline Π=I is the zero-point. Each percentage point above baseline scores linearly up to a cap at +6% ≈ full. Results must be statistically significant (Bonferroni-corrected p &lt; 0.05). Salt-and-pepper / Gaussian are secondary.</li>
-                <li><span class="k">Anisotropy Quality · 20 pts (D2)</span>Spread reduction factor μ̂_max/μ̂_min (uniform) vs. (agent). Score scales with log(spread reduction). 29× matches the paper's aligned construction (full marks). Below 5× earns minimal marks. The equilibrium must be the same across all precision configurations.</li>
-                <li><span class="k">Lipschitz Fidelity · 15 pts (D3)</span>R² of equilibrium shift vs. precision perturbation (target ≥ 0.6). Empirical slope must not exceed C_IFT. Violations of the IFT bound earn 0 regardless of R².</li>
-                <li><span class="k">Generalization · 15 pts (D4)</span>Out-of-distribution robustness. Full marks: positive Δprec on at least two of three stress tests. Zero-shot generalisation to a new corruption type earns +3 if Δprec &gt; 0 without retuning.</li>
-                <li><span class="k">Theoretical Grounding · 15 pts</span>Every design decision linked to a specific theorem or lemma. Vague references ("we used precision because it helps") earn minimal credit. Precise references ("we set π_i ∝ λ_i(H(a*)) to minimize the condition number per Theorem F3 part 3") earn full credit.</li>
-                <li><span class="k">Reproducibility &amp; Code · 10 pts</span>Judge runs the submitted script cold. Full marks: Table 1 equivalent reproduces within 5%. Partial: correct trends with &gt;5% drift. Zero: script errors or &gt;15 min setup beyond <code>pip install -r requirements.txt</code>.</li>
+                <li><span class="k">Step 1 · Clone &amp; install</span>
+                  <pre><span class="tag">Shell</span><code>git clone https://github.com/Sauhard74/Anvil-P-E
+cd Anvil-P-E/bench-p04-pcam
+pip install -r requirements.txt</code></pre>
+                </li>
+                <li><span class="k">Step 2 · See the baseline run</span>
+                  <pre><span class="tag">Shell</span><code>python self_check.py --adapter adapters.dummy:DummyAgent --quick</code></pre>
+                  This is the Π=I floor. Your agent must beat this on retrieval accuracy.
+                </li>
+                <li><span class="k">Step 3 · Write your agent</span>
+                  Copy <code>adapters/dummy.py</code> to <code>adapters/myteam.py</code> and replace the <code>predict_precision</code> body with your logic.
+                </li>
+                <li><span class="k">Step 4 · Self-check while iterating</span>
+                  <pre><span class="tag">Shell</span><code>python self_check.py --adapter adapters.myteam:Engine --quick</code></pre>
+                  Compare your accuracy and spread reduction against the dummy.
+                </li>
+                <li><span class="k">Step 5 · Full evaluation</span>
+                  <pre><span class="tag">Shell</span><code>python run.py --adapter adapters.myteam:Engine --out report.json</code></pre>
+                  Same harness the judges use. Aim for Δ ≥ 0.05 on retrieval and ≥ 10× on spread.
+                </li>
               </ol>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Rubric · Per-Dimension</div>
-            <div class="field-body">
-              <table class="eval">
-                <thead><tr><th>Dimension</th><th>0 pts</th><th>Half</th><th>Full</th></tr></thead>
-                <tbody>
-                  <tr><td class="area">Retrieval Accuracy</td><td class="desc">Δprec ≤ 0% or insignificant</td><td class="desc">Δprec 0–3%</td><td class="desc">Δprec ≥ 4% (significant)</td></tr>
-                  <tr><td class="area">Anisotropy Quality</td><td class="desc">Spread reduction &lt; 2×</td><td class="desc">2× – 10×</td><td class="desc">≥ 10× (log-scaled)</td></tr>
-                  <tr><td class="area">Lipschitz Fidelity</td><td class="desc">R² &lt; 0.3 or IFT violated</td><td class="desc">R² 0.3 – 0.6</td><td class="desc">R² ≥ 0.6, bound satisfied</td></tr>
-                  <tr><td class="area">Generalisation</td><td class="desc">In-distribution only</td><td class="desc">1 stress test</td><td class="desc">≥ 2 stress tests</td></tr>
-                  <tr><td class="area">Theory Grounding</td><td class="desc">No theorem citations</td><td class="desc">Superficial</td><td class="desc">Precise per-decision links</td></tr>
-                  <tr><td class="area">Reproducibility</td><td class="desc">Script fails / &gt;15 min setup</td><td class="desc">Runs but &gt;5% drift</td><td class="desc">Reproduces within 5%</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Bonus · up to +8</div>
-            <div class="field-body">
-              <ul>
-                <li><span class="k">+3 · Zero-Shot Stress B</span>Zero-shot Δprec &gt; 0 on a corruption type unseen during agent training.</li>
-                <li><span class="k">+2 · Closed-Form Design</span>Novel closed-form precision design with a proof that it minimises the condition number of ΠH(a*) under a stated constraint class.</li>
-                <li><span class="k">+3 · Hessian-Querying Agent</span>Agent that takes Hessian-vector products as input (queried online from the PCAM model) and demonstrates measurably better D2 results than agents that do not.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Benchmark · Dataset</div>
-            <div class="field-body">
-              <div class="kv"><div>Source</div><div>MNIST (CC BY-SA 3.0)</div></div>
-              <div class="kv"><div>State dimension N</div><div>64 (PCA projection on 60k training split)</div></div>
-              <div class="kv"><div>Default memory load K</div><div>200 (balanced across 10 classes)</div></div>
-              <div class="kv"><div>Test queries per noise level</div><div>1,000 (100 per class, balanced)</div></div>
-              <div class="kv"><div>Mask / S&amp;P noise levels</div><div>p ∈ {0.1, 0.2, 0.3, 0.4}</div></div>
-              <div class="kv"><div>Gaussian noise levels</div><div>σ ∈ {0.1, 0.2, 0.3, 0.4}</div></div>
-              <div class="kv"><div>Random seeds</div><div>10 seeds {0, 1, …, 9}</div></div>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Benchmark · Required Baselines</div>
-            <div class="field-body">
-              <p>All four mandatory baselines must be reproduced by your code (not copied from the paper).</p>
-              <table class="eval">
-                <thead><tr><th>Baseline</th><th>Description</th><th>Paper Acc @ p=0.4</th></tr></thead>
-                <tbody>
-                  <tr><td class="area">Classical Hopfield</td><td class="desc">Bipolar Hebbian · 100 sync steps · continuous recovery</td><td class="desc">22.4 ± 3.0</td></tr>
-                  <tr><td class="area">Modern Hopfield</td><td class="desc">One-shot softmax · β tuned on held-out 10%</td><td class="desc">88.4 ± 1.1</td></tr>
-                  <tr><td class="area">PC-AM</td><td class="desc">Hierarchical predictive-coding · 2 layers</td><td class="desc">86.1 ± 1.4</td></tr>
-                  <tr><td class="area">PCAM-Π=I (yours)</td><td class="desc">Your base PCAM with uniform precision</td><td class="desc">~90.1 ± 1.0</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Technical · System Parameters</div>
-            <div class="field-body">
-              <div class="kv"><div>State dimension N</div><div>64</div></div>
-              <div class="kv"><div>Replay strength η</div><div>0.5</div></div>
-              <div class="kv"><div>Softmax temperature β</div><div>8</div></div>
-              <div class="kv"><div>Diffusion coefficient γ</div><div>0.2</div></div>
-              <div class="kv"><div>Inhibition coefficient δ</div><div>0.1</div></div>
-              <div class="kv"><div>Diagonal of A (α_i)</div><div>0.5 (uniform)</div></div>
-              <div class="kv"><div>Graph for L</div><div>Erdős–Rényi · edge prob 0.1</div></div>
-              <div class="kv"><div>Integration step Δt</div><div>0.01</div></div>
-              <div class="kv"><div>Max steps T</div><div>3,000</div></div>
-              <div class="kv"><div>Convergence tolerance</div><div>10⁻⁶</div></div>
-              <div class="kv"><div>Input window T_in</div><div>100 steps (then u=0)</div></div>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Stability Pre-Check</div>
-            <div class="field-body">
-              <p>Before running any experiment, verify the quantitative sufficient condition for Hypothesis (H) from Corollary 1:</p>
-              <pre><span class="tag">Required</span><code>ηβ ||X||² &lt; λ_min(R)</code></pre>
-              <p>With default parameters: LHS ≈ 0.5 × 8 × ||X||² and RHS ≈ 0.5. Verify this is satisfied for your pattern matrix X before running experiments. Report the verified values in your submission.</p>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Precision Constraints</div>
-            <div class="field-body">
-              <div class="kv"><div>π_min (entries below clipped)</div><div>0.1</div></div>
-              <div class="kv"><div>π_max (entries above clipped)</div><div>10.0</div></div>
-              <div class="kv"><div>Normalisation</div><div>mean(π_i) = 1 before applying</div></div>
-              <div class="kv"><div>CFL step-size check</div><div>Δt × π_max × L_∇E &lt; 2 (verify after computing Π)</div></div>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Recommended Timeline · 24h</div>
-            <div class="field-body">
-              <p class="muted">Advisory — phasing reflects judging weights. Compressed to the 24-hour Anvil window; budget aggressively.</p>
-              <table class="eval">
-                <thead><tr><th>Phase</th><th>Hours</th><th>Deliverable / Focus</th></tr></thead>
-                <tbody>
-                  <tr><td class="area">Phase 0</td><td class="desc">0 – 2</td><td class="desc">Setup · PCAM baseline · Π=I retrieval at K=200 within ±2% of paper Table 2</td></tr>
-                  <tr><td class="area">Phase 1</td><td class="desc">2 – 6</td><td class="desc">D2 anisotropy — reproduce Exp 3b · understand H(a*) geometry</td></tr>
-                  <tr><td class="area">Phase 2</td><td class="desc">6 – 12</td><td class="desc">D1 agent design and training (mask noise, K=200)</td></tr>
-                  <tr><td class="area">Phase 3</td><td class="desc">12 – 17</td><td class="desc">D3 Lipschitz verification — IFT bound check</td></tr>
-                  <tr><td class="area">Phase 4</td><td class="desc">17 – 22</td><td class="desc">D4 stress tests · generalisation plots</td></tr>
-                  <tr><td class="area">Phase 5</td><td class="desc">22 – 24</td><td class="desc">Report · cleanup · reproducibility check</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Submission · Format</div>
-            <div class="field-body">
-              <p>Single ZIP archive with the structure below. Deviations are penalised on reproducibility.</p>
-              <pre><span class="tag">submission.zip</span><code>submission.zip
-  ├─ report.pdf             (4–8 pages · sections D1–D4)
-  ├─ code/
-  │   ├─ requirements.txt
-  │   ├─ run_all.sh         (reproduces your Table 1 equivalent)
-  │   ├─ agent.py           (precision agent, importable)
-  │   ├─ eval.py            (full evaluation pipeline)
-  │   ├─ d2_anisotropy.ipynb
-  │   └─ d3_lipschitz.ipynb
-  ├─ results/
-  │   ├─ table1.csv         (main results)
-  │   └─ seeds/             (per-seed raw CSVs)
-  └─ README.md              (30-second setup guide)</code></pre>
-              <p>Report sections: (1) Agent Architecture, (2) D1 Results, (3) D2 Anisotropy Analysis, (4) D3 Lipschitz Verification, (5) D4 Stress Tests, (6) Theoretical Connections. Figures must have error bars (±1 SD). Claims must reference specific theorems from the PCAM paper.</p>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">Judging Mechanics &amp; Tiebreakers</div>
-            <div class="field-body">
-              <p>Judges drawn from the PCAM paper reviewer pool and NeurIPS workshop chairs. Each submission receives two independent judge scores; the average is final. Tiebreakers (≤ 1 point gap) apply in order:</p>
-              <ul>
-                <li><span class="k">Capacity</span>Higher Δprec at K=500 (capacity generalisation).</li>
-                <li><span class="k">Speed</span>Lower wall-clock time to run the full evaluation pipeline on an RTX 3090.</li>
-                <li><span class="k">Theory</span>More precise theoretical justification (judge discretion, documented).</li>
-              </ul>
             </div>
           </div>
 
@@ -1789,13 +1735,26 @@ class Engine(Adapter):
             <div class="field-label">FAQ</div>
             <div class="field-body">
               <ul>
-                <li><span class="k">Neural agent?</span>Yes. Any architecture mapping q̃ → Π in a single forward pass is permitted. You may train this network on a training split of MNIST before the hackathon — but not on the test queries.</li>
-                <li><span class="k">Test set for design?</span>No. Agent must be fixed before evaluation. Use the training split (50k images minus stored patterns) for training.</li>
-                <li><span class="k">Multiple integration runs?</span>No. One PCAM run per query with one Π. No ensembling across Π values.</li>
-                <li><span class="k">Hessian access at inference?</span>Yes — Hessian-vector products from the frozen PCAM model are permitted (basis for the +3 bonus). Full Hessian is only efficient at N=64.</li>
-                <li><span class="k">Π violates CFL?</span>Reduce Δt until Δt × π_max × L_∇E &lt; 2. Reduces step budget — design your agent so π_max stays bounded.</li>
-                <li><span class="k">Team size?</span>Solo or up to 3. Each member on at most one team.</li>
+                <li><span class="k">Can I retrain the PCAM model?</span>No. The base system is frozen. You only design the agent that picks precision.</li>
+                <li><span class="k">Can I use a neural net?</span>Yes. Train it on the provided patterns before the hackathon if you want. The trained weights live inside your agent.</li>
+                <li><span class="k">Can I look at the test queries before submission?</span>The bench has a public seed set you iterate against. Judges run on a held-out seed set with the same generator.</li>
+                <li><span class="k">What if my precision values blow up the dynamics?</span>The harness clips precision to [0.1, 10.0] and re-normalises mean to 1 before applying. Stay within that range and you're fine.</li>
+                <li><span class="k">Do I need a GPU?</span>No. The whole bench runs on CPU in under 10 minutes.</li>
+                <li><span class="k">Team size?</span>Solo or up to 3 — same as the other tracks.</li>
               </ul>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label">Optional · Going Deeper</div>
+            <div class="field-body">
+              <p>If you want to ground your design in the paper's theory, the most useful results are:</p>
+              <ul>
+                <li><span class="k">Theorem F3</span>Precision rescales per-direction convergence rates by the eigenvalues of ΠH. Choosing precision to balance these rates is what produces the ~30× spread reduction in the paper.</li>
+                <li><span class="k">Theorem 7</span>Equilibria shift continuously with precision at a bounded rate — this is what lets your agent steer the attractor without destabilising it.</li>
+                <li><span class="k">Section 6.6</span>The paper's class-conditional design Π*class achieves a ~2.5% accuracy gain over uniform precision on PCA-MNIST at high noise. A good starting point — and beatable.</li>
+              </ul>
+              <p>You don't need to derive anything; the bench handles the math. But understanding <em>why</em> precision works will make your agent design sharper.</p>
             </div>
           </div>
         </section>
