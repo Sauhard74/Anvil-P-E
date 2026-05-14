@@ -1295,11 +1295,13 @@ class Engine(Adapter):
 
         <div class="lbl">Evaluation</div>
         <div class="judging">
-          <div class="row"><span>Product polish</span><span>★</span></div>
-          <div class="row"><span>Live demo reliability</span><span>★</span></div>
-          <div class="row"><span>Workflow complexity</span><span>★</span></div>
-          <div class="row"><span>Autonomous execution</span><span>★</span></div>
-          <div class="row"><span>Verified traces · bonus</span><span>+</span></div>
+          <div class="row"><span>Problem relevance &amp; usefulness</span><span>20</span></div>
+          <div class="row"><span>Autonomous execution</span><span>25</span></div>
+          <div class="row"><span>Multi-agent workflow quality</span><span>20</span></div>
+          <div class="row"><span>Tooling &amp; integrations</span><span>15</span></div>
+          <div class="row"><span>Demo video quality</span><span>10</span></div>
+          <div class="row"><span>Architecture &amp; engineering</span><span>10</span></div>
+          <div class="row"><span>Omium tracing · bonus</span><span>+10</span></div>
         </div>
 
         <div class="marginalia">
@@ -1351,14 +1353,35 @@ class Engine(Adapter):
         </div>
 
         <h2>Evaluation</h2>
-        <p class="muted">Four core axes determine the score. The fifth is a bonus for teams that wire up Omium tracing.</p>
+        <p class="muted">Six core axes total 100%. Omium verified tracing earns an additional +10% bonus on top.</p>
         <ol>
-          <li><span class="k">01 · Usefulness</span>How polished and useful is the product? Does it solve a real problem someone would pay to have solved?</li>
-          <li><span class="k">02 · Live Demo</span>Does it work reliably in the live demo? Reliability under demo conditions is a first-class signal.</li>
-          <li><span class="k">03 · Workflow Quality</span>Complexity and quality of the agentic workflow — depth of reasoning, sophistication of orchestration, breadth of tool use.</li>
-          <li><span class="k">04 · Autonomous Execution</span>Real autonomous task completion — not a sequence of prompted steps with a human in the loop.</li>
-          <li><span class="k">05 · Verified Traces · Bonus</span>If the workflow is instrumented through Omium's SDK, the trace is fully visible and verifiable on the Omium dashboard. Awarded as additive bonus credit on top of the core score.</li>
+          <li><span class="k">01 · Problem Relevance &amp; Usefulness · 20%</span>
+            Solves a real and meaningful problem. Clear target users and practical value. Product feels usable beyond a hackathon demo. Strong UX and polished workflow.
+          </li>
+          <li><span class="k">02 · Autonomous Execution · 25%</span>
+            Completes tasks with minimal or no human intervention. Agents make decisions independently. Handles retries, failures, and branching flows. Demonstrates true autonomy instead of scripted prompts.
+          </li>
+          <li><span class="k">03 · Multi-Agent Workflow Quality · 20%</span>
+            Clear separation of agent responsibilities. Effective coordination and task handoff. Depth of reasoning and planning. Sophisticated orchestration across agents.
+          </li>
+          <li><span class="k">04 · Tooling &amp; Integrations · 15%</span>
+            Effective use of APIs, databases, files, code execution, webhooks, and similar. Real side-effects produced by the system. Proper async execution and long-running task handling. Meaningful use of web search and live data.
+          </li>
+          <li><span class="k">05 · Demo Video Quality &amp; Execution · 10%</span>
+            Video clearly showcases the complete workflow end-to-end. Smooth and reliable execution without major failures or interruptions. Clear storytelling, presentation, and problem explanation. Autonomous task completion demonstrated in a realistic scenario. Easy to follow agent flow, tool usage, and final outcome.
+          </li>
+          <li><span class="k">06 · Technical Architecture &amp; Engineering · 10%</span>
+            Clean architecture and maintainable codebase. Scalability and modularity. Proper observability and logging. Thoughtful system design choices.
+          </li>
         </ol>
+
+        <h3>Bonus · Omium Verified Tracing · +10%</h3>
+        <ul>
+          <li><span class="k">Coverage</span>Complete tracing coverage using the Omium SDK across every meaningful step.</li>
+          <li><span class="k">Causal Linking</span>Workflows and sub-agents causally linked in the trace graph.</li>
+          <li><span class="k">Demo Match</span>Dashboard clearly matches demo execution — same workflow, same steps, same outcome.</li>
+          <li><span class="k">Debugging Quality</span>High observability — the trace makes the system's decisions inspectable and explainable.</li>
+        </ul>
 
         <h2>Submission</h2>
         <p>
@@ -1455,10 +1478,12 @@ class Engine(Adapter):
             <div class="field-label">Judging Mechanics</div>
             <div class="field-body">
               <ul>
-                <li><span class="k">Live</span>Judges run your demo on your machine. Reliability under demo conditions is part of the score — a polished crash-handling story beats an ambitious crash.</li>
-                <li><span class="k">Manual</span>Product polish, workflow complexity, autonomous-execution quality, and writeup graded by panel.</li>
-                <li><span class="k">Trace Audit · Bonus</span>For teams that submit Omium traces, judges open the dashboard and confirm the workflow matches what was traced. Coverage and causal threading determine the bonus magnitude.</li>
-                <li><span class="k">Q&amp;A</span>15-minute panel. Expect questions on agent decomposition, tool design, and how you achieved autonomy under demo conditions.</li>
+                <li><span class="k">Demo Video</span>The submitted screen-recorded video is the primary surface for axes 01, 02, 04, and 05. It must clearly showcase the end-to-end autonomous workflow.</li>
+                <li><span class="k">Live</span>Judges run the demo on your machine for reliability verification and Q&amp;A. A polished crash-handling story beats an ambitious crash.</li>
+                <li><span class="k">Code Review</span>Repository graded against axis 06 — architecture, modularity, observability, system design choices.</li>
+                <li><span class="k">Manual</span>Product polish, workflow complexity, autonomous-execution quality graded by panel against the six axes.</li>
+                <li><span class="k">Trace Audit · Bonus</span>For teams that submit Omium traces, judges open the dashboard and confirm coverage, causal linking, and that it matches the demo execution. Coverage quality determines the bonus magnitude (up to +10%).</li>
+                <li><span class="k">Q&amp;A</span>15-minute panel. Expect questions on agent decomposition, tool design, retry/branching strategy, and how you achieved autonomy under demo conditions.</li>
               </ul>
             </div>
           </div>
